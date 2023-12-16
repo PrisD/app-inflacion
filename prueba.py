@@ -16,7 +16,7 @@ screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 
 # Calcular el tamaño de la ventana como el 40% de la pantalla
-window_width = int(screen_width * 0.4)
+window_width = int(screen_width * 0.7)
 window_height = int(screen_height * 0.4)
 
 # Centrar la ventana en la pantalla
@@ -34,11 +34,15 @@ frame.pack(expand=True, fill="both")
 percentage_var = tk.DoubleVar()
 percentage_var.set(0)  # Valor inicial
 
+selected_filename = ""  # Variable para almacenar el nombre del archivo seleccionado
+
 
 # Función para abrir el cuadro de diálogo de selección de archivos
 def open_file_dialog():
+    global selected_filename
     filename = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx;*.xls")])
     if filename:
+        selected_filename = filename
         # Obtener solo el nombre del archivo sin la ruta
         file_name = os.path.basename(filename)
         # Actualizar el texto del botón con el nombre del archivo
@@ -62,7 +66,7 @@ def open_file_dialog():
 def show_preview(container, filename):
     try:
         # Leer el archivo Excel utilizando pandas
-        df = pd.read_excel(filename)
+        df = pd.read_excel(filename, skiprows=[0])
 
         # Crear un widget Treeview para mostrar las primeras 6 filas de la tabla
         tree = ttk.Treeview(
@@ -104,17 +108,36 @@ def add_increase_button(container):
     increase_button.pack(pady=5, ipadx=10, ipady=5)
 
 
-# Función para aumentar el porcentaje
+# Función para aumentar el porcentaje en la columna "PRECIO"
 def increase_percentage():
     try:
         # Obtener el porcentaje ingresado
         percentage = percentage_var.get()
 
         # Realizar la acción de aumento (aquí puedes implementar tu lógica)
-        print(f"Aumentando porcentaje en {percentage}%")
+        print(f"Aumentando porcentaje en {percentage}% en la columna 'PRECIO'")
+
+        # Leer el archivo Excel utilizando pandas
+        df = pd.read_excel(selected_filename, skiprows=[0])
+
+        # Verificar si la columna "PRECIO" existe en el DataFrame
+        if "PRECIO" in df.columns:
+            # Aumentar el porcentaje solo en los valores numéricos de la columna "PRECIO"
+            df["PRECIO"] = df["PRECIO"].apply(
+                lambda x: x * (1 + percentage / 100)
+                if pd.api.types.is_numeric_dtype(x)
+                else x
+            )
+
+            # Imprimir el DataFrame modificado (opcional, puedes eliminar esta línea)
+            print("DataFrame modificado:")
+            print(df)
+
+        else:
+            print("La columna 'PRECIO' no existe en el DataFrame.")
 
     except Exception as e:
-        print(f"Error al aumentar el porcentaje: {e}")
+        print(f"Error al aumentar el porcentaje en la columna 'PRECIO': {e}")
 
 
 # Crear el botón con estilo personalizado en el Frame
