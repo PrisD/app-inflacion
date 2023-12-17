@@ -108,7 +108,6 @@ def add_increase_button(container):
     increase_button.pack(pady=5, ipadx=10, ipady=5)
 
 
-# Función para aumentar el porcentaje en la columna "PRECIO"
 def increase_percentage():
     try:
         # Obtener el porcentaje ingresado
@@ -124,12 +123,17 @@ def increase_percentage():
         if "PRECIO" in df.columns:
             # Aumentar el porcentaje solo en los valores numéricos de la columna "PRECIO"
             df["PRECIO"] = df["PRECIO"].apply(
-                lambda x: x * (1 + percentage / 100)
-                if pd.api.types.is_numeric_dtype(x)
-                else x
+                lambda x: x * (1 + percentage / 100) if pd.api.types.is_number(x) else x
             )
 
-            # Imprimir el DataFrame modificado (opcional, puedes eliminar esta línea)
+            # Guardar el DataFrame modificado en un nuevo archivo Excel
+            df.to_excel("new_file.xlsx", index=False)
+
+            print(
+                "Se ha creado un nuevo archivo 'new_file.xlsx' con el porcentaje actualizado."
+            )
+
+            # Imprimir el DataFrame modificado
             print("DataFrame modificado:")
             print(df)
 
