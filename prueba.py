@@ -178,11 +178,6 @@ def show_updated_preview(container, filename):
         print(f"Error al mostrar la previsualización actualizada: {e}")
 
 
-from openpyxl import load_workbook
-from tkinter import filedialog
-import os
-
-
 # Función para descargar el archivo y mostrar un mensaje en la pantalla
 def download_file(filename):
     try:
