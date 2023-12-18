@@ -213,8 +213,11 @@ def download_file(filename):
                 start_row=1, start_column=1, end_row=1, end_column=len(sheet[2])
             )
 
+            # Obtiene el nombre del archivo sin la extensión .xls
+            header = os.path.splitext(os.path.basename(selected_filename))[0]
+
             # Agrega el encabezado de grupo
-            sheet.cell(row=1, column=1).value = "Tu Encabezado de Grupo"
+            sheet.cell(row=1, column=1).value = header
 
             # Guarda el archivo Excel
             wb.save(download_path)
