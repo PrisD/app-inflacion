@@ -17,7 +17,7 @@ screen_height = root.winfo_screenheight()
 
 # Calcular el tamaño de la ventana como el 40% de la pantalla
 window_width = int(screen_width * 0.7)
-window_height = int(screen_height * 0.4)
+window_height = int(screen_height * 0.7)
 
 # Centrar la ventana en la pantalla
 position_top = int(screen_height / 2 - window_height / 2)
@@ -108,6 +108,7 @@ def add_increase_button(container):
     increase_button.pack(pady=5, ipadx=10, ipady=5)
 
 
+# Función para aumentar el porcentaje
 def increase_percentage():
     try:
         # Obtener el porcentaje ingresado
@@ -133,9 +134,8 @@ def increase_percentage():
                 "Se ha creado un nuevo archivo 'new_file.xlsx' con el porcentaje actualizado."
             )
 
-            # Imprimir el DataFrame modificado
-            print("DataFrame modificado:")
-            print(df)
+            # Mostrar la previsualización actualizada
+            show_updated_preview(frame, "new_file.xlsx")
 
         else:
             print("La columna 'PRECIO' no existe en el DataFrame.")
@@ -144,9 +144,72 @@ def increase_percentage():
         print(f"Error al aumentar el porcentaje en la columna 'PRECIO': {e}")
 
 
+def show_updated_preview(container, filename):
+    try:
+        # Leer el archivo Excel utilizando pandas
+        df = pd.read_excel(filename)
+
+        # Crear un widget Treeview para mostrar las primeras 6 filas de la tabla
+        tree = ttk.Treeview(
+            container,
+            columns=list(df.columns),
+            show="headings",
+            height=min(7, len(df) + 1),  # Mostrar las primeras 6 filas
+        )
+
+        # Configurar encabezados de columnas
+        for col in df.columns:
+            tree.heading(col, text=col)
+
+        # Insertar datos en el Treeview (solo las primeras 6 filas)
+        for index, row in df.head(6).iterrows():
+            tree.insert("", "end", values=list(row))
+
+        # Añadir el Treeview al contenedor
+        tree.pack(expand=True, fill="both")
+
+        # Añadir botón de descarga
+        download_button = ttk.Button(
+            container, text="Descargar", command=lambda: download_file("new_file.xlsx")
+        )
+        download_button.pack(pady=5, ipadx=10, ipady=5)
+
+    except Exception as e:
+        print(f"Error al mostrar la previsualización actualizada: {e}")
+
+
+# Función para descargar el archivo y mostrar un mensaje en la pantalla
+def download_file(filename):
+    try:
+        # Abrir el cuadro de diálogo para seleccionar la ubicación de descarga
+        download_path = filedialog.asksaveasfilename(
+            defaultextension=".xlsx", filetypes=[("Excel files", "*.xlsx")]
+        )
+
+        if download_path:
+            # Copiar el archivo a la ubicación de descarga
+            os.replace(filename, download_path)
+            message_label.config(
+                text=f"Archivo descargado con éxito en: {download_path}",
+                foreground="green",
+            )
+        else:
+            message_label.config(text="Descarga cancelada.", foreground="black")
+
+    except Exception as e:
+        message_label.config(
+            text=f"Error al descargar el archivo: {e}", foreground="red"
+        )
+
+
 # Crear el botón con estilo personalizado en el Frame
 button = ttk.Button(frame, text="Seleccionar tabla", command=open_file_dialog)
 button.pack(pady=5, ipadx=10, ipady=5)
+
+
+# Crear una etiqueta para mostrar mensajes
+message_label = ttk.Label(frame, text="", foreground="black")
+message_label.pack(pady=5)
 
 # Ejecutar la aplicación
 root.mainloop()
