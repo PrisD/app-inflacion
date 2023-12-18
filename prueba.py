@@ -178,6 +178,11 @@ def show_updated_preview(container, filename):
         print(f"Error al mostrar la previsualización actualizada: {e}")
 
 
+from openpyxl import load_workbook
+from tkinter import filedialog
+import os
+
+
 # Función para descargar el archivo y mostrar un mensaje en la pantalla
 def download_file(filename):
     try:
@@ -193,6 +198,27 @@ def download_file(filename):
                 text=f"Archivo descargado con éxito en: {download_path}",
                 foreground="green",
             )
+
+            # Carga tu archivo Excel
+            wb = load_workbook(download_path)
+
+            # Selecciona la hoja en la que deseas agregar el encabezado de grupo
+            sheet = wb.active
+
+            # Inserta una nueva fila en la parte superior de la hoja
+            sheet.insert_rows(1)
+
+            # Combina las celdas para el encabezado de grupo
+            sheet.merge_cells(
+                start_row=1, start_column=1, end_row=1, end_column=len(sheet[2])
+            )
+
+            # Agrega el encabezado de grupo
+            sheet.cell(row=1, column=1).value = "Tu Encabezado de Grupo"
+
+            # Guarda el archivo Excel
+            wb.save(download_path)
+
         else:
             message_label.config(text="Descarga cancelada.", foreground="black")
 
